@@ -1,8 +1,8 @@
 {
-  "name": "typescript-action",
-  "version": "0.0.0",
+  "name": "callrail-package-cleanup",
+  "version": "0.0.1",
   "private": true,
-  "description": "TypeScript template action",
+  "description": "Cleanup WIP dev packages from github package manager",
   "main": "lib/main.js",
   "scripts": {
     "build": "tsc",
@@ -15,17 +15,13 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/actions/typescript-action.git"
+    "url": "git+https://github.com/callrail/package-cleanup.git"
   },
-  "keywords": [
-    "actions",
-    "node",
-    "setup"
-  ],
-  "author": "",
-  "license": "MIT",
+  "author": "jkronz",
   "dependencies": {
-    "@actions/core": "^1.2.6"
+    "@actions/core": "^1.2.6",
+    "@actions/github": "^4.0.0",
+    "rxjs": "^6.6.3"
   },
   "devDependencies": {
     "@types/jest": "^26.0.15",

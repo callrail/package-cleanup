@@ -1,20 +1,13 @@
-<p align="center">
-  <a href="https://github.com/actions/typescript-action/actions"><img alt="typescript-action status" src="https://github.com/actions/typescript-action/workflows/build-test/badge.svg"></a>
-</p>
+# Clean up old Looky Versions
 
-# Create a JavaScript Action using TypeScript
+This is a github action based largely on the public action [delete-package-versions](https://github.com/marketplace/actions/delete-package-versions)([source](https://github.com/actions/delete-package-versions))
 
-Use this template to bootstrap the creation of a TypeScript action.:rocket:
+It is meant to be triggered by a github pull request closed action. When triggered, search the github graphql API for recent versions and loop over those to check if they match the input `branch`. Send the matching IDs back to the API with a delete mutation with that ID to clean up other versions.
 
-This template includes compilation support, tests, a validation workflow, publishing, and versioning guidance.  
+The branch passed in can be the github branch directly. I'll downcase it and replace anything that isn't a letter, number, dash, or period with a dash to try to find the new version: 
+`jk/9709/create_github_action` will become `jk-9709-create-github-action` and then the version is checked with `indexOf()`, so `0.8.8-jk-9709-create-github-action.1` will match. 
 
-If you are new, there's also a simpler introduction.  See the [Hello World JavaScript Action](https://github.com/actions/hello-world-javascript-action)
-
-## Create an action from this template
-
-Click the `Use this Template` and provide the new repo details for your action
-
-## Code in Main
+## Contributing
 
 Install the dependencies  
 ```bash
@@ -38,35 +31,17 @@ $ npm test
 ...
 ```
 
-## Change action.yml
+### Entrypoint
+The entrypoint is main.ts
 
-The action.yml contains defines the inputs and output for your action.
+See the [toolkit documentation](https://github.com/actions/toolkit/blob/master/README.md#packages) for the various packages.
+
+### action.yml
+The action.yml contains the definition of the inputs and output for this action.
 
 Update the action.yml with your name, description, inputs and outputs for your action.
 
 See the [documentation](https://help.github.com/en/articles/metadata-syntax-for-github-actions)
-
-## Change the Code
-
-Most toolkit and CI/CD operations involve async operations so the action is run in an async function.
-
-```javascript
-import * as core from '@actions/core';
-...
-
-async function run() {
-  try { 
-      ...
-  } 
-  catch (error) {
-    core.setFailed(error.message);
-  }
-}
-
-run()
-```
-
-See the [toolkit documentation](https://github.com/actions/toolkit/blob/master/README.md#packages) for the various packages.
 
 ## Publish to a distribution branch
 
@@ -86,18 +61,7 @@ Your action is now published! :rocket:
 
 See the [versioning documentation](https://github.com/actions/toolkit/blob/master/docs/action-versioning.md)
 
-## Validate
-
-You can now validate the action by referencing `./` in a workflow in your repo (see [test.yml](.github/workflows/test.yml))
-
-```yaml
-uses: ./
-with:
-  milliseconds: 1000
-```
-
-See the [actions tab](https://github.com/actions/typescript-action/actions) for runs of this action! :rocket:
 
 ## Usage:
 
-After testing you can [create a v1 tag](https://github.com/actions/toolkit/blob/master/docs/action-versioning.md) to reference the stable and latest V1 action
+After testing you can [create a version tag](https://github.com/actions/toolkit/blob/master/docs/action-versioning.md) to reference the stable and latest V1 action. 

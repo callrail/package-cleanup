@@ -1,11 +1,36 @@
-name: 'Your name here'
-description: 'Provide a description here'
-author: 'Your name or organization here'
+name: 'package-cleanup'
+description: 'Clean up development versions from github packages'
+author: '@callrail'
 inputs:
-  milliseconds: # change this
+  branch-name:
+    description: Search string to look for in versions. Odd characters will be replaced with dash
     required: true
-    description: 'input description here'
-    default: 'default value if applicable'
+
+  owner:
+    description: >
+      Owner of the repo containing the package version to delete.
+      Defaults to the owner of the repo running the action.
+    required: false
+
+  repo:
+    description: >
+      Repo containing the package version to delete.
+      Defaults to the repo running the action.
+    required: false
+
+  package-name:
+    description: Name of the package containing the version to delete.
+    required: true
+
+  token:
+    description: >
+      Token with the necessary scopes to delete package versions.
+      If num-old-versions-to-delete is used the token also needs the read packages scope.
+      Defaults to github.token scoped to the repo running the action. To delete package versions
+      of a package outside the repo the action is running in use a Personal Access Token stored as a secret.
+    required: false
+    default: ${{ github.token }}
+
 runs:
   using: 'node12'
   main: 'dist/index.js'
