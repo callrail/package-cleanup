@@ -42,24 +42,31 @@ export function deletePackageVersion(
 
 export function deletePackageVersions(
   packageVersionIds: string[],
-  token: string
+  token: string,
+  dryRun: boolean
 ): Observable<boolean> {
   if (packageVersionIds.length === 0) {
     console.log('no package version ids found, no versions will be deleted');
     return of(true)
   }
 
-  const deletes = packageVersionIds.map(id =>
-    deletePackageVersion(id, token).pipe(
-      tap(result => {
-        if (result) {
-          console.log(`version with id: ${id}, deleted`)
-        } else {
-          console.log(`version with id: ${id}, not deleted`)
-        }
-      })
-    )
-  );
-
-  return merge(...deletes)
+  console.log(`IDs to be deleted: ${packageVersionIds}`);
+  if (dryRun) {
+    return of(true);
+  }
+  console.log("dry run flag failed")
+  return of(true);
+  // const deletes = packageVersionIds.map(id =>
+  //   deletePackageVersion(id, token).pipe(
+  //     tap(result => {
+  //       if (result) {
+  //         console.log(`version with id: ${id}, deleted`)
+  //       } else {
+  //         console.log(`version with id: ${id}, not deleted`)
+  //       }
+  //     })
+  //   )
+  // );
+  //
+  // return merge(...deletes)
 }

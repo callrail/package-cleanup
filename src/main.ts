@@ -7,11 +7,12 @@ import { catchError } from 'rxjs/operators'
 
 function getActionInput(): Input {
   return new Input({
-    branchName: getInput('branch-name'),
+    branchName: getInput('branch-name', { required: true }),
     owner: getInput('owner') ? getInput('owner') : context.repo.owner,
     repo: getInput('repo') ? getInput('repo') : context.repo.repo,
-    packageName: getInput('package-name'),
-    token: getInput('token')
+    packageName: getInput('package-name', { required: true }),
+    token: getInput('token', { required: true }),
+    dryRun: getInput('dry-run') ? getInput('dry-run') == 'true' : false,
   });
 }
 
