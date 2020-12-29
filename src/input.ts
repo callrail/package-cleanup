@@ -4,6 +4,7 @@ export interface InputParams {
   repo?: string
   packageName?: string
   token?: string
+  dryRun: boolean
 }
 
 const defaultParams = {
@@ -11,7 +12,8 @@ const defaultParams = {
   owner: '',
   repo: '',
   packageName: '',
-  token: ''
+  token: '',
+  dryRun: false
 };
 
 export class Input {
@@ -20,6 +22,7 @@ export class Input {
   repo: string;
   packageName: string;
   token: string;
+  dryRun: boolean;
 
   constructor(params?: InputParams) {
     const validatedParams: Required<InputParams> = {...defaultParams, ...params};
@@ -29,5 +32,6 @@ export class Input {
     this.repo = validatedParams.repo;
     this.packageName = validatedParams.packageName;
     this.token = validatedParams.token;
+    this.dryRun = validatedParams.dryRun
   }
 }
