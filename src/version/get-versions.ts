@@ -1,11 +1,11 @@
-import { GraphQlQueryResponse } from '@octokit/graphql/dist-types/types'
-import { Observable, from, throwError } from 'rxjs'
-import { catchError, map } from 'rxjs/operators'
-import { graphql } from './graphql'
+import { GraphQlQueryResponse } from '@octokit/graphql/dist-types/types';
+import { Observable, from, throwError } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
+import { graphql } from './graphql';
 
 export interface VersionInfo {
-  id: string
-  version: string
+  id: string;
+  version: string;
 }
 
 export interface GetVersionsQueryResponse {
@@ -13,14 +13,14 @@ export interface GetVersionsQueryResponse {
     packages: {
       edges: {
         node: {
-          name: string
+          name: string;
           versions: {
-            edges: { node: VersionInfo }[]
-          }
-        }
-      }[]
-    }
-  }
+            edges: { node: VersionInfo }[];
+          };
+        };
+      }[];
+    };
+  };
 }
 
 const query = `
@@ -67,9 +67,9 @@ export function queryForNewestVersions(
         err.errors && err.errors.length > 0
           ? `${msg} ${err.errors[0].message}`
           : `${msg} verify input parameters are correct`
-      )
+      );
     })
-  )
+  );
 }
 
 export function getOldestVersions(
@@ -79,25 +79,20 @@ export function getOldestVersions(
   packageName: string,
   token: string
 ): Observable<VersionInfo[]> {
-  return queryForNewestVersions(
-    owner,
-    repo,
-    packageName,
-    token
-  ).pipe(
+  return queryForNewestVersions(owner, repo, packageName, token).pipe(
     map(result => {
       if (result.repository.packages.edges.length < 1) {
         throwError(
           `package: ${packageName} not found for owner: ${owner} in repo: ${repo}`
-        )
+        );
       }
 
       const versions = result.repository.packages.edges[0].node.versions.edges;
 
       return versions
-        .filter(value => value.node.version.indexOf(branchName) >= 0)
-        .map(value => ({id: value.node.id, version: value.node.version}))
-        .reverse()
+        .filter(value => value.node.version.includes(branchName))
+        .map(value => ({ id: value.node.id, version: value.node.version }))
+        .reverse();
     })
-  )
+  );
 }

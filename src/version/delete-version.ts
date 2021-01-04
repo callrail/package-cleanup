@@ -1,12 +1,12 @@
-import { from, Observable, merge, throwError, of } from 'rxjs'
-import { catchError, map, tap } from 'rxjs/operators'
-import { GraphQlQueryResponse } from '@octokit/graphql/dist-types/types'
-import { graphql } from './graphql'
+import { from, Observable, merge, throwError, of } from 'rxjs';
+import { catchError, map, tap } from 'rxjs/operators';
+import { GraphQlQueryResponse } from '@octokit/graphql/dist-types/types';
+import { graphql } from './graphql';
 
 export interface DeletePackageVersionMutationResponse {
   deletePackageVersion: {
-    success: boolean
-  }
+    success: boolean;
+  };
 }
 
 const mutation = `
@@ -34,10 +34,10 @@ export function deletePackageVersion(
         err.errors && err.errors.length > 0
           ? `${msg} ${err.errors[0].message}`
           : `${msg} verify input parameters are correct`
-      )
+      );
     }),
     map(response => response.deletePackageVersion.success)
-  )
+  );
 }
 
 export function deletePackageVersions(
@@ -47,7 +47,7 @@ export function deletePackageVersions(
 ): Observable<boolean> {
   if (packageVersionIds.length === 0) {
     console.log('no package version ids found, no versions will be deleted');
-    return of(true)
+    return of(true);
   }
 
   console.log(`IDs to be deleted: ${packageVersionIds}`);
@@ -58,13 +58,13 @@ export function deletePackageVersions(
     deletePackageVersion(id, token).pipe(
       tap(result => {
         if (result) {
-          console.log(`version with id: ${id}, deleted`)
+          console.log(`version with id: ${id}, deleted`);
         } else {
-          console.log(`version with id: ${id}, not deleted`)
+          console.log(`version with id: ${id}, not deleted`);
         }
       })
     )
   );
 
-  return merge(...deletes)
+  return merge(...deletes);
 }

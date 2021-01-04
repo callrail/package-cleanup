@@ -1,2 +1,2 @@
-export * from './get-versions'
-export * from './delete-version'
+export * from './get-versions';
+export * from './delete-version';

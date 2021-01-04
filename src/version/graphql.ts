@@ -1,6 +1,6 @@
-import { GitHub } from '@actions/github'
-import { GraphQlQueryResponseData } from '@octokit/graphql/dist-types/types'
-import { RequestParameters } from '@octokit/types/dist-types/RequestParameters'
+import { GitHub } from '@actions/github';
+import { GraphQlQueryResponseData } from '@octokit/graphql/dist-types/types';
+import { RequestParameters } from '@octokit/types/dist-types/RequestParameters';
 
 /**
  * Sends a GraphQL query request based on endpoint options
@@ -15,5 +15,5 @@ export async function graphql(
   parameters: RequestParameters
 ): Promise<GraphQlQueryResponseData> {
   const github = new GitHub(token);
-  return await github.graphql(query, parameters)
+  return await github.graphql(query, parameters);
 }
