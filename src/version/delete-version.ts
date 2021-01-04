@@ -54,19 +54,17 @@ export function deletePackageVersions(
   if (dryRun) {
     return of(true);
   }
-  console.log("dry run flag failed")
-  return of(true);
-  // const deletes = packageVersionIds.map(id =>
-  //   deletePackageVersion(id, token).pipe(
-  //     tap(result => {
-  //       if (result) {
-  //         console.log(`version with id: ${id}, deleted`)
-  //       } else {
-  //         console.log(`version with id: ${id}, not deleted`)
-  //       }
-  //     })
-  //   )
-  // );
-  //
-  // return merge(...deletes)
+  const deletes = packageVersionIds.map(id =>
+    deletePackageVersion(id, token).pipe(
+      tap(result => {
+        if (result) {
+          console.log(`version with id: ${id}, deleted`)
+        } else {
+          console.log(`version with id: ${id}, not deleted`)
+        }
+      })
+    )
+  );
+
+  return merge(...deletes)
 }

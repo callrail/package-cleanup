@@ -1,4 +1,4 @@
-# Clean up old Looky Versions
+# Clean up old Package Versions
 
 This is a github action based largely on the public action [delete-package-versions](https://github.com/marketplace/actions/delete-package-versions)([source](https://github.com/actions/delete-package-versions))
 
