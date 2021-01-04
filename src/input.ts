@@ -32,7 +32,7 @@ export class Input {
     // downcase the branch name and replace anything that isnt letter, number, or period with a dash.
     this.branchName = validatedParams.branchName
       .toLowerCase()
-      .replace(/[^a-z0-9.]/, '-');
+      .replace(/[^a-z0-9.]/g, '-');
     this.owner = validatedParams.owner;
     this.repo = validatedParams.repo;
     this.packageName = validatedParams.packageName;

@@ -54,7 +54,9 @@ class Input {
     constructor(params) {
         const validatedParams = Object.assign(Object.assign({}, defaultParams), params);
         // downcase the branch name and replace anything that isnt letter, number, or period with a dash.
-        this.branchName = validatedParams.branchName.toLowerCase().replace(/[^a-z0-9\.]/, '-');
+        this.branchName = validatedParams.branchName
+            .toLowerCase()
+            .replace(/[^a-z0-9.]/, '-');
         this.owner = validatedParams.owner;
         this.repo = validatedParams.repo;
         this.packageName = validatedParams.packageName;
@@ -86,7 +88,7 @@ function getActionInput() {
         repo: core_1.getInput('repo') ? core_1.getInput('repo') : github_1.context.repo.repo,
         packageName: core_1.getInput('package-name', { required: true }),
         token: core_1.getInput('token', { required: true }),
-        dryRun: core_1.getInput('dry-run') ? core_1.getInput('dry-run') == 'true' : false,
+        dryRun: core_1.getInput('dry-run') ? core_1.getInput('dry-run') === 'true' : false
     });
 }
 function run() {
@@ -145,21 +147,15 @@ function deletePackageVersions(packageVersionIds, token, dryRun) {
     if (dryRun) {
         return rxjs_1.of(true);
     }
-    console.log("dry run flag failed");
-    return rxjs_1.of(true);
-    // const deletes = packageVersionIds.map(id =>
-    //   deletePackageVersion(id, token).pipe(
-    //     tap(result => {
-    //       if (result) {
-    //         console.log(`version with id: ${id}, deleted`)
-    //       } else {
-    //         console.log(`version with id: ${id}, not deleted`)
-    //       }
-    //     })
-    //   )
-    // );
-    //
-    // return merge(...deletes)
+    const deletes = packageVersionIds.map(id => deletePackageVersion(id, token).pipe(operators_1.tap(result => {
+        if (result) {
+            console.log(`version with id: ${id}, deleted`);
+        }
+        else {
+            console.log(`version with id: ${id}, not deleted`);
+        }
+    })));
+    return rxjs_1.merge(...deletes);
 }
 exports.deletePackageVersions = deletePackageVersions;
 
@@ -220,7 +216,7 @@ function getOldestVersions(branchName, owner, repo, packageName, token) {
         }
         const versions = result.repository.packages.edges[0].node.versions.edges;
         return versions
-            .filter(value => value.node.version.indexOf(branchName) >= 0)
+            .filter(value => value.node.version.includes(branchName))
             .map(value => ({ id: value.node.id, version: value.node.version }))
             .reverse();
     }));
