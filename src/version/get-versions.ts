@@ -30,7 +30,7 @@ const query = `
         edges {
           node {
             name
-            versions(first: $first) {
+            versions(first: $first, orderBy: {field: CREATED_AT, direction: DESC}) {
               edges {
                 node {
                   id
