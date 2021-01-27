@@ -7,7 +7,7 @@ import { catchError } from 'rxjs/operators';
 
 function getActionInput(): Input {
   return new Input({
-    branchName: getInput('branch-name', { required: true }),
+    branchName: getInput('head-ref', { required: true }),
     owner: getInput('owner') ? getInput('owner') : context.repo.owner,
     repo: getInput('repo') ? getInput('repo') : context.repo.repo,
     packageName: getInput('package-name', { required: true }),

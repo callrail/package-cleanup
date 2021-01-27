@@ -2,8 +2,8 @@ name: 'package-cleanup'
 description: 'Clean up development versions from github packages'
 author: '@callrail'
 inputs:
-  branch-name:
-    description: Search string to look for in versions. Odd characters will be replaced with dash
+  head-ref:
+    description: Branch to look for in versions. Odd characters will be replaced with dash
     required: true
 
   owner:
