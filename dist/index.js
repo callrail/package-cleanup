@@ -214,6 +214,7 @@ function getOldestVersions(branchName, owner, repo, packageName, token) {
             rxjs_1.throwError(`package: ${packageName} not found for owner: ${owner} in repo: ${repo}`);
         }
         const versions = result.repository.packages.edges[0].node.versions.edges;
+        console.log(`looking for packages that include '${branchName}'`);
         return versions
             .filter(value => value.node.version.includes(branchName))
             .map(value => ({ id: value.node.id, version: value.node.version }))
