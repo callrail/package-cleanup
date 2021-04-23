@@ -1,6 +1,7 @@
-import { from, Observable, merge, throwError, of } from 'rxjs';
-import { catchError, map, tap } from 'rxjs/operators';
 import { GraphQlQueryResponse } from '@octokit/graphql/dist-types/types';
+import { from, merge, Observable, of, throwError } from 'rxjs';
+import { catchError, map, tap } from 'rxjs/operators';
+
 import { graphql } from './graphql';
 
 export interface DeletePackageVersionMutationResponse {
@@ -46,8 +47,9 @@ export function deletePackageVersions(
   dryRun: boolean
 ): Observable<boolean> {
   if (packageVersionIds.length === 0) {
-    console.log('no package version ids found, no versions will be deleted');
-    return of(true);
+    return throwError(
+      'no package version ids found no versions will be deleted. This is likely an error'
+    );
   }
 
   console.log(`IDs to be deleted: ${packageVersionIds}`);

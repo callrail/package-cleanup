@@ -1,6 +1,7 @@
 import { GraphQlQueryResponse } from '@octokit/graphql/dist-types/types';
-import { Observable, from, throwError } from 'rxjs';
+import { from, Observable, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
+
 import { graphql } from './graphql';
 
 export interface VersionInfo {
@@ -88,6 +89,7 @@ export function getOldestVersions(
       }
 
       const versions = result.repository.packages.edges[0].node.versions.edges;
+      console.log(`looking for packages that include '${branchName}'`);
 
       return versions
         .filter(value => value.node.version.includes(branchName))
