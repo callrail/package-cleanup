@@ -1,27 +1,48 @@
 import { GraphQlQueryResponse } from '@octokit/graphql/dist-types/types';
-import { from, Observable, throwError } from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
+import { EMPTY, from, Observable, throwError } from 'rxjs';
+import { catchError, expand, map, tap } from 'rxjs/operators';
 
 import { graphql } from './graphql';
 
-export interface VersionInfo {
+interface VersionInfo {
   id: string;
   version: string;
 }
 
-export interface GetVersionsQueryResponse {
+interface PageInfo {
+  endCursor: string,
+  hasNextPage: boolean
+}
+
+interface VersionNode {
+  node: VersionInfo
+}
+
+interface VersionSummary {
+  totalCount: string,
+  pageInfo: PageInfo,
+  edges: VersionNode[];
+}
+
+interface GetVersionsQueryResponse {
   repository: {
     packages: {
       edges: {
         node: {
           name: string;
-          versions: {
-            edges: { node: VersionInfo }[];
-          };
+          versions: VersionSummary
         };
       }[];
     };
   };
+}
+
+interface ApiRequestParams {
+  owner: string,
+  repo: string,
+  packageName: string,
+  token: string,
+  after?: string
 }
 
 const query = `
@@ -32,6 +53,11 @@ const query = `
           node {
             name
             versions(first: $first, orderBy: {field: CREATED_AT, direction: DESC}) {
+              totalCount
+              pageInfo {
+                endCursor
+                hasNextPage
+              }
               edges {
                 node {
                   id
@@ -45,18 +71,34 @@ const query = `
     }
   }`;
 
-export function queryForNewestVersions(
-  owner: string,
-  repo: string,
-  packageName: string,
-  token: string
-): Observable<GetVersionsQueryResponse> {
+function queryForAllVersions(params: ApiRequestParams) {
+  return getVersionsApi(params).pipe(
+    expand((result) => {
+      if (!packageNode(result)) {
+        const { owner, repo, packageName } = params;
+        throwError(
+          `package: ${packageName} not found for owner: ${owner} in repo: ${repo}`
+        );
+      }
+      if (packageNode(result)?.node.versions.pageInfo.hasNextPage) {
+        const after = packageNode(result)?.node.versions.pageInfo.endCursor;
+        const copyOfParams = {...params, ...{after}};
+        return getVersionsApi(copyOfParams);
+      } else {
+        return EMPTY;
+      }
+    }));
+}
+
+function getVersionsApi(params: ApiRequestParams): Observable<GetVersionsQueryResponse> {
+  const { owner, repo, packageName, token, after } = params;
   return from(
     graphql(token, query, {
       owner,
       repo,
       package: packageName,
-      first: 1000,
+      first: 100,
+      after: after,
       headers: {
         Accept: 'application/vnd.github.packages-preview+json'
       }
@@ -73,20 +115,22 @@ export function queryForNewestVersions(
   );
 }
 
-export function getOldestVersions(
+function packageNode(result: GetVersionsQueryResponse) {
+  const packageList = result.repository.packages.edges
+  if (packageList.length > 0) {
+    return packageList[0];
+  }
+}
+
+export function getVersions(
   branchName: string,
   owner: string,
   repo: string,
   packageName: string,
   token: string
 ): Observable<VersionInfo[]> {
-  return queryForNewestVersions(owner, repo, packageName, token).pipe(
-    map(result => {
-      if (result.repository.packages.edges.length < 1) {
-        throwError(
-          `package: ${packageName} not found for owner: ${owner} in repo: ${repo}`
-        );
-      }
+  return queryForAllVersions({owner, repo, packageName, token}).pipe(
+    map((result) => {
 
       const versions = result.repository.packages.edges[0].node.versions.edges;
       console.log(`👀 '${branchName}' in ${versions.length} packages`);
