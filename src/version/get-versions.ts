@@ -56,7 +56,7 @@ export function queryForNewestVersions(
       owner,
       repo,
       package: packageName,
-      first: 100,
+      first: 1000,
       headers: {
         Accept: 'application/vnd.github.packages-preview+json'
       }
@@ -89,7 +89,7 @@ export function getOldestVersions(
       }
 
       const versions = result.repository.packages.edges[0].node.versions.edges;
-      console.log(`looking for packages that include '${branchName}'`);
+      console.log(`👀 '${branchName}' in ${versions.length} packages`);
 
       return versions
         .filter(value => value.node.version.includes(branchName))
