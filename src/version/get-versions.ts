@@ -4,7 +4,7 @@ import { catchError, expand, map, tap } from 'rxjs/operators';
 
 import { graphql } from './graphql';
 
-interface VersionInfo {
+export interface VersionInfo {
   id: string;
   version: string;
 }
@@ -19,12 +19,12 @@ interface VersionNode {
 }
 
 interface VersionSummary {
-  totalCount: string,
+  totalCount: number,
   pageInfo: PageInfo,
   edges: VersionNode[];
 }
 
-interface GetVersionsQueryResponse {
+export interface GetVersionsQueryResponse {
   repository: {
     packages: {
       edges: {
@@ -46,13 +46,13 @@ interface ApiRequestParams {
 }
 
 const query = `
-  query getVersions($owner: String!, $repo: String!, $package: String!, $first: Int!) {
+  query getVersions($owner: String!, $repo: String!, $package: String!, $first: Int!, $after: String) {
     repository(owner: $owner, name: $repo) {
       packages(first: 1, names: [$package]) {
         edges {
           node {
             name
-            versions(first: $first, orderBy: {field: CREATED_AT, direction: DESC}) {
+            versions(first: $first, after: $after, orderBy: {field: CREATED_AT, direction: DESC}) {
               totalCount
               pageInfo {
                 endCursor
@@ -80,6 +80,7 @@ function queryForAllVersions(params: ApiRequestParams) {
           `package: ${packageName} not found for owner: ${owner} in repo: ${repo}`
         );
       }
+      // console.log('EXPAND VERSIONS', packageNode(result)?.node.versions.pageInfo.endCursor)
       if (packageNode(result)?.node.versions.pageInfo.hasNextPage) {
         const after = packageNode(result)?.node.versions.pageInfo.endCursor;
         const copyOfParams = {...params, ...{after}};

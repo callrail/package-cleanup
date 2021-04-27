@@ -1,10 +1,10 @@
 import { Input } from './input';
 import { Observable, throwError } from 'rxjs';
-import { deletePackageVersions, getOldestVersions } from './version';
+import { deletePackageVersions, getVersions } from './version';
 import { concatMap, map } from 'rxjs/operators';
 
 export function getVersionIds(input: Input): Observable<string[]> {
-  return getOldestVersions(
+  return getVersions(
     input.branchName,
     input.owner,
     input.repo,

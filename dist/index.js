@@ -21,7 +21,7 @@ const rxjs_1 = __webpack_require__(5805);
 const version_1 = __webpack_require__(4428);
 const operators_1 = __webpack_require__(7801);
 function getVersionIds(input) {
-    return version_1.getOldestVersions(input.branchName, input.owner, input.repo, input.packageName, input.token).pipe(operators_1.map(versionInfo => versionInfo.map(info => info.id)));
+    return version_1.getVersions(input.branchName, input.owner, input.repo, input.packageName, input.token).pipe(operators_1.map(versionInfo => versionInfo.map(info => info.id)));
 }
 exports.getVersionIds = getVersionIds;
 function deleteVersions(input) {
@@ -167,18 +167,23 @@ exports.deletePackageVersions = deletePackageVersions;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getOldestVersions = exports.queryForNewestVersions = void 0;
+exports.getVersions = void 0;
 const rxjs_1 = __webpack_require__(5805);
 const operators_1 = __webpack_require__(7801);
 const graphql_1 = __webpack_require__(6320);
 const query = `
-  query getVersions($owner: String!, $repo: String!, $package: String!, $first: Int!) {
+  query getVersions($owner: String!, $repo: String!, $package: String!, $first: Int!, $after: String) {
     repository(owner: $owner, name: $repo) {
       packages(first: 1, names: [$package]) {
         edges {
           node {
             name
-            versions(first: $first, orderBy: {field: CREATED_AT, direction: DESC}) {
+            versions(first: $first, after: $after, orderBy: {field: CREATED_AT, direction: DESC}) {
+              totalCount
+              pageInfo {
+                endCursor
+                hasNextPage
+              }
               edges {
                 node {
                   id
@@ -191,12 +196,32 @@ const query = `
       }
     }
   }`;
-function queryForNewestVersions(owner, repo, packageName, token) {
+function queryForAllVersions(params) {
+    return getVersionsApi(params).pipe(operators_1.expand((result) => {
+        var _a, _b;
+        if (!packageNode(result)) {
+            const { owner, repo, packageName } = params;
+            rxjs_1.throwError(`package: ${packageName} not found for owner: ${owner} in repo: ${repo}`);
+        }
+        // console.log('EXPAND VERSIONS', packageNode(result)?.node.versions.pageInfo.endCursor)
+        if ((_a = packageNode(result)) === null || _a === void 0 ? void 0 : _a.node.versions.pageInfo.hasNextPage) {
+            const after = (_b = packageNode(result)) === null || _b === void 0 ? void 0 : _b.node.versions.pageInfo.endCursor;
+            const copyOfParams = Object.assign(Object.assign({}, params), { after });
+            return getVersionsApi(copyOfParams);
+        }
+        else {
+            return rxjs_1.EMPTY;
+        }
+    }));
+}
+function getVersionsApi(params) {
+    const { owner, repo, packageName, token, after } = params;
     return rxjs_1.from(graphql_1.graphql(token, query, {
         owner,
         repo,
         package: packageName,
-        first: 1000,
+        first: 100,
+        after: after,
         headers: {
             Accept: 'application/vnd.github.packages-preview+json'
         }
@@ -207,12 +232,14 @@ function queryForNewestVersions(owner, repo, packageName, token) {
             : `${msg} verify input parameters are correct`);
     }));
 }
-exports.queryForNewestVersions = queryForNewestVersions;
-function getOldestVersions(branchName, owner, repo, packageName, token) {
-    return queryForNewestVersions(owner, repo, packageName, token).pipe(operators_1.map(result => {
-        if (result.repository.packages.edges.length < 1) {
-            rxjs_1.throwError(`package: ${packageName} not found for owner: ${owner} in repo: ${repo}`);
-        }
+function packageNode(result) {
+    const packageList = result.repository.packages.edges;
+    if (packageList.length > 0) {
+        return packageList[0];
+    }
+}
+function getVersions(branchName, owner, repo, packageName, token) {
+    return queryForAllVersions({ owner, repo, packageName, token }).pipe(operators_1.map((result) => {
         const versions = result.repository.packages.edges[0].node.versions.edges;
         console.log(`👀 '${branchName}' in ${versions.length} packages`);
         return versions
@@ -221,7 +248,7 @@ function getOldestVersions(branchName, owner, repo, packageName, token) {
             .reverse();
     }));
 }
-exports.getOldestVersions = getOldestVersions;
+exports.getVersions = getVersions;
 
 
 /***/ }),
