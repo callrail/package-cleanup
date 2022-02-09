@@ -22,7 +22,7 @@
     "@actions/core": "^1.2.0",
     "@actions/github": "^2.1.1",
     "@octokit/graphql": "4.4.0",
-    "rxjs": "^6.5.4"
+    "rxjs": "^7.5.3"
   },
   "devDependencies": {
     "@types/jest": "^26.0.15",
