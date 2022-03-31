@@ -47,9 +47,8 @@ export function deletePackageVersions(
   dryRun: boolean
 ): Observable<boolean> {
   if (packageVersionIds.length === 0) {
-    return throwError(
-      'no package version ids found no versions will be deleted. This is likely an error'
-    );
+    console.log('no package version ids found. No versions will be deleted.');
+    return of(true);
   }
 
   console.log(`IDs to be deleted: ${packageVersionIds}`);
