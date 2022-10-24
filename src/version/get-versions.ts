@@ -1,4 +1,7 @@
-import { GraphQlQueryResponse } from '@octokit/graphql/dist-types/types';
+import {
+  GraphQlQueryResponse,
+  GraphQlQueryResponseData
+} from '@octokit/graphql/dist-types/types';
 import { from, Observable, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 
@@ -62,7 +65,7 @@ export function queryForNewestVersions(
       }
     }) as Promise<GetVersionsQueryResponse>
   ).pipe(
-    catchError((err: GraphQlQueryResponse) => {
+    catchError((err: GraphQlQueryResponse<GraphQlQueryResponseData>) => {
       const msg = 'query for newest version failed.';
       return throwError(
         err.errors && err.errors.length > 0

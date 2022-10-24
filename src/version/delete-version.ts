@@ -1,4 +1,7 @@
-import { GraphQlQueryResponse } from '@octokit/graphql/dist-types/types';
+import {
+  GraphQlQueryResponse,
+  GraphQlQueryResponseData
+} from '@octokit/graphql/dist-types/types';
 import { from, merge, Observable, of, throwError } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
 
@@ -29,7 +32,7 @@ export function deletePackageVersion(
       }
     }) as Promise<DeletePackageVersionMutationResponse>
   ).pipe(
-    catchError((err: GraphQlQueryResponse) => {
+    catchError((err: GraphQlQueryResponse<GraphQlQueryResponseData>) => {
       const msg = 'delete version mutation failed.';
       return throwError(
         err.errors && err.errors.length > 0
